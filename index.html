@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        ul,li{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .content li{
+            padding: 10px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            margin-top: 10px;
+
+        }
+        .hover{
+            background: #009898;
+            color: #fff;
+        }
+        a{
+            text-decoration: none;
+        }
+        #btn{
+            display: block;
+            width: 80px;
+            height: 40px;
+            margin: 10px auto;
+            border: 1px solid  #E27272;
+            color:  #E27272;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<ul class="content">
+    <li>内容1</li>
+    <li>内容2</li>
+</ul>
+<a id="btn" href="#">加载更多</a>
+
+<script>
+    //事件代理---li要动态添加很多
+    var content= document.querySelector('.content')
+    content.addEventListener('mouseover',function(e){
+        var target= e.target;
+        if(target.tagName.toLowerCase()==='li'){
+            target.classList.add('hover')
+        }
+
+    })
+    content.addEventListener('mouseout',function(e){
+        var target= e.target;
+
+            target.classList.remove('hover')
+
+    })
+
+    var isDataArrive=true;//状态锁  默认现在是有响应数据
+    var btn=document.querySelector('#btn')
+    var pageIndex=3;
+//
+    btn.addEventListener('click', function(e){
+        e.preventDefault()
+
+        if(!isDataArrive){
+            return;
+        }
+
+        var xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState === 4){
+                if( xhr.status === 200 || xhr.status == 304){
+                    var results = JSON.parse(xhr.responseText)
+                    console.log(results)
+                    var fragment = document.createDocumentFragment()
+                    for(var i = 0; i < results.length; i++){
+                        var node = document.createElement('li')
+                        node.innerText = results[i]
+                        fragment.appendChild(node)
+                    }
+                    content.appendChild(fragment)
+
+                    pageIndex = pageIndex + 5
+                }else{
+                    console.log('出错了')
+                }
+                isDataArrive = true
+            }
+        }
+        xhr.open('get', '/loadMore?index='+pageIndex+'&length=5', true)
+        xhr.send()
+        isDataArrive = false
+
+    })
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+</body>
+</html>
